@@ -12,8 +12,15 @@ is not public):
   2. anti-alias resample both EEG channels 2048 Hz -> 256 Hz (resample_poly, 8x)
   3. per trial, the channel with the larger robust scale (MAD-based) is taken as
      the motion-contaminated channel, the other one as the clean channel
-  4. cut both channels into non-overlapping 1 s (256-sample) epochs
+  4. cut both channels into non-overlapping 1 s (256-sample) epochs, removing
+     each epoch's own DC offset
      -> physiobank_clean.npy, physiobank_contaminated.npy, shape (N, 256)
+
+The per-epoch DC removal in step 4 is required: the two transducers sit at
+different electrode DC potentials, and data.py later normalizes the clean
+channel with the noisy channel's per-epoch mean/std — without it the clean
+targets end up offset by hundreds of std units and the SNR/RRMSE metrics
+become meaningless.
 """
 import glob
 import os
@@ -59,8 +66,13 @@ for path in sorted(glob.glob(os.path.join(RAW_DIR, "**", "*.csv"), recursive=Tru
         dirty, clean = ch2, ch1
 
     n_seg = min(len(clean), len(dirty)) // SFREQ_OUT
-    clean_epochs.append(clean[: n_seg * SFREQ_OUT].reshape(n_seg, SFREQ_OUT))
-    contaminated_epochs.append(dirty[: n_seg * SFREQ_OUT].reshape(n_seg, SFREQ_OUT))
+
+    def epochs_zero_mean(x):
+        ep = x[: n_seg * SFREQ_OUT].reshape(n_seg, SFREQ_OUT)
+        return ep - ep.mean(axis=1, keepdims=True)
+
+    clean_epochs.append(epochs_zero_mean(clean))
+    contaminated_epochs.append(epochs_zero_mean(dirty))
     print(f"{os.path.basename(path)}: {n_seg} epochs, contaminated = channel {dirty_ch} "
           f"(episodicity {max(episodicity(ch1), episodicity(ch2)):.2f} vs "
           f"{min(episodicity(ch1), episodicity(ch2)):.2f})")

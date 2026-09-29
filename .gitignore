@@ -5,6 +5,10 @@ __pycache__/
 .venv/
 venv/
 
+# 训练产物（checkpoint/日志/图表），按需本地保留
+results/
+train.log
+
 # ZCode 工作区配置
 .zcode/
 
