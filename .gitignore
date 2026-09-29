@@ -1,0 +1,17 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+
+# ZCode 工作区配置
+.zcode/
+
+# 超过 GitHub 100MB 单文件限制的原始数据压缩包
+# 下载地址见 DATA_SOURCES.md（PhysioNet Motion Artifact Contaminated fNIRS and EEG Data v1.0.0）
+physionet_raw/EEG-csv.zip
+
+# 系统文件
+Thumbs.db
+.DS_Store

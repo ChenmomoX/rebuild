@@ -1,0 +1,21 @@
+# Self-Supervised EEG Denoising 依赖清单
+# Python >= 3.8；若使用 Python 3.13（如本机 Microsoft Store 版），pip 会自动选择 torch>=2.6
+
+# 深度学习框架
+# 最低版本说明：代码用到 torch.corrcoef（1.10 引入）、torch.fft 模块与
+# torch.linalg.vector_norm（1.8 引入），故 torch>=1.10
+# GPU 用户请按 CUDA 版本安装，例如：
+#   pip install torch --index-url https://download.pytorch.org/whl/cu124
+torch>=1.10
+
+# .npy 数据读写与信号合成（data.py）
+numpy>=1.21
+
+# 仅用于 sklearn.model_selection.train_test_split 划分训练/验证集（train.py）
+scikit-learn>=1.0
+
+# 数据合成时的进度条（data.py）
+tqdm>=4.60
+
+# LinearAttention 中的 rearrange 张量重排（model.py）
+einops>=0.4
